@@ -6,6 +6,7 @@ from .session import get_client, get_resource
 AMI:str = 'ami-78349817'  # chat2
 SUBNET:str = 'subnet-782d2710'  # chat-1a
 SECURITY_GROUP:str = 'sg-2dd7f546'  # chat
+IAM_INSTANCE_ROLE_ARN:str = 'arn:aws:iam::178183757879:instance-profile/chatbox'
 
 USERDATA:str = """
 yum -y update
@@ -29,7 +30,7 @@ def run_instance():
         UserData=USERDATA,
         MinCount=1,
         MaxCount=1,
-        IamInstanceProfile={'Arn': 'arn:aws:iam::178183757879:instance-profile/chatbox'},
+        IamInstanceProfile={'Arn': IAM_INSTANCE_ROLE_ARN},
     )
     instances = response['Instances']
     instance = instances[0]
