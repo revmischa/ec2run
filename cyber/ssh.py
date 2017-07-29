@@ -6,6 +6,7 @@ import paramiko
 import os
 from paramiko.py3compat import u
 
+# thing to send over SSH on instance connect
 IRSSI_COMMAND = 'bash launch.sh\n'
 
 
