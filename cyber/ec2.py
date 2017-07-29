@@ -2,6 +2,7 @@ import boto3
 import time
 from .session import get_client, get_resource
 
+# you'll want to change these...
 AMI:str = 'ami-78349817'  # chat2
 SUBNET:str = 'subnet-782d2710'  # chat-1a
 SECURITY_GROUP:str = 'sg-2dd7f546'  # chat

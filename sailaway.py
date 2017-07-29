@@ -6,8 +6,6 @@ from cyber import ssh
 
 def main():
     instance = ec2.run_instance()
-    # ip = '35.158.188.117'
-    # print(ip)
     ip = instance.public_ip_address
 
     try:

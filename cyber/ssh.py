@@ -22,13 +22,13 @@ class CyberSSH(paramiko.SSHClient):
         # self._sftp_copy(sftp, 'irssiconfig', '.irssi/config')
         self._sftp_copy(sftp, 'screenrc', '.screenrc')
         self._sftp_copy(sftp, 'launch.sh', 'launch.sh')
-        # sftp.close()
+        sftp.close()
 
     def _sftp_copy(self, sftp: str, src: str, dst: str):
         dir_path = os.path.dirname(os.path.realpath(__file__))
         local_file_path = os.path.join(dir_path, '..', src)
         print(f"*** Copying {local_file_path} -> {dst}")
-        sftp.put(local_file_path, '.irssi/config')
+        sftp.put(local_file_path, dst)
 
     def screen_irssi(self):
         self.exec_command(
