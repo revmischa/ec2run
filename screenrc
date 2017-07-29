@@ -1,0 +1,35 @@
+unsetenv DISPLAY
+setenv LC_CTYPE en_US.UTF-8
+termcapinfo xterm 'Co#256:AB=\E[48;5;%dm:AF=\E[38;5;%dm'
+defbce "on"
+term xterm
+defhstatus "screen  (t) | $USER@H"
+hardstatus off
+sorendition "+b kG"
+activity "%c activity -> %n%f %t"
+bell "%c bell -> %n%f %t^G"
+vbell_msg " *beep* "
+startup_message off
+deflogin off
+autodetach on
+#shell bash
+vbell off
+verbose on
+defscrollback 10000
+defutf8 on
+nonblock on
+bindkey "^[[5;2~" eval "copy" "stuff ^u"
+bindkey -m "^[[5;2~" stuff ^u
+bindkey -m "^[[6;2~" stuff ^d
+bind c screen 0
+bind 'L'
+bind 'I' login on
+bind 'O' login off
+bind ^S
+bind s
+bindkey -k kb stuff "\177"
+multiuser on
+aclchg :window: +x select
+caption always "%{= KW}%?%n -%C|%D|%M %d|%H %?%F%{+u KG}%?%L=%-Lw%45>%{+b wK}%n%f* %t%{-}%+Lw%-0<"
+attrcolor b ".I"
+
