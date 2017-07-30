@@ -11,7 +11,9 @@ def main():
     try:
         client = ssh.connect(ip)
         client.copy_files()
-        client.interactive()
+        client.close()
+        client.ssh_client(ip)
+        # client.interactive()
     except Exception as ex:
         print("*** Exception:")
         print(ex)

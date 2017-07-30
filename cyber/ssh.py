@@ -7,8 +7,9 @@ import os
 from paramiko.py3compat import u
 
 # thing to send over SSH on instance connect
-IRSSI_COMMAND = 'bash launch.sh\n'
-
+RUN_COMMAND = 'bash launch.sh'
+# SSH key to use
+SSH_KEYFILE = os.path.join(os.environ['HOME'], '.ssh', 'awsmish.pem')
 
 class CyberSSH(paramiko.SSHClient):
     """SSH functionality."""
@@ -22,7 +23,6 @@ class CyberSSH(paramiko.SSHClient):
         # self._sftp_copy(sftp, 'irssiconfig', '.irssi/config')
         self._sftp_copy(sftp, 'screenrc', '.screenrc')
         self._sftp_copy(sftp, 'launch.sh', 'launch.sh')
-        sftp.close()
 
     def _sftp_copy(self, sftp: str, src: str, dst: str):
         dir_path = os.path.dirname(os.path.realpath(__file__))
@@ -32,25 +32,39 @@ class CyberSSH(paramiko.SSHClient):
 
     def screen_irssi(self):
         self.exec_command(
-            command=IRSSI_COMMAND,
+            command=RUN_COMMAND,
             get_pty=True,
         )
 
-    def interactive(self: paramiko.client):
+    def ssh_client(self, ip):
+        ssh_cmd = [
+            'ssh',
+            '-t',
+            '-i', SSH_KEYFILE,
+            '-o BatchMode=yes',
+            '-o StrictHostKeyChecking=no',
+            f'ec2-user@{ip}',
+            RUN_COMMAND,
+        ]
+        print(f"SSHing to {ip}...")
+        os.system(" ".join(ssh_cmd))
+
+    def interactive(self):
         try:
             chan = self.invoke_shell(term='xterm-256color')
-            chan.send(IRSSI_COMMAND)
             print('*** Connected!\n')
             self.posix_shell(chan)
             chan.close()
             self.close()
-
         except Exception as e:
             try:
                 self.close()
             except:
                 pass
             raise Exception from e
+
+    def shell_init(self, chan):
+        chan.send(RUN_COMMAND)        
 
     def posix_shell(self, chan):
         import select
@@ -60,6 +74,8 @@ class CyberSSH(paramiko.SSHClient):
             tty.setraw(sys.stdin.fileno())
             tty.setcbreak(sys.stdin.fileno())
             chan.settimeout(0.0)
+
+            self.shell_init(chan)
 
             while True:
                 r, w, e = select.select([chan, sys.stdin], [], [])
@@ -82,11 +98,6 @@ class CyberSSH(paramiko.SSHClient):
         finally:
             termios.tcsetattr(sys.stdin, termios.TCSADRAIN, oldtty)
 
-
-def _keyfile() -> str:
-    return os.path.join(os.environ['HOME'], '.ssh', 'awsmish.pem')
-
-
 def connect(hostname: str, username: str = 'ec2-user') -> CyberSSH:
     port = 22
 
@@ -98,5 +109,5 @@ def connect(hostname: str, username: str = 'ec2-user') -> CyberSSH:
     client.load_system_host_keys()
     client.set_missing_host_key_policy(paramiko.WarningPolicy())
     print('*** Connecting...')
-    client.connect(hostname, port, username, key_filename=_keyfile())
+    client.connect(hostname, port, username, key_filename=SSH_KEYFILE)
     return client
