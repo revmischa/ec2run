@@ -3,7 +3,7 @@ import time
 from .session import get_client, get_resource
 
 # you'll want to change these...
-AMI:str = 'ami-78349817'  # chat2
+AMI:str = 'ami-e316ba8c'  # chat2
 SUBNET:str = 'subnet-782d2710'  # chat-1a
 SECURITY_GROUP:str = 'sg-2dd7f546'  # chat
 IAM_INSTANCE_ROLE_ARN:str = 'arn:aws:iam::178183757879:instance-profile/chatbox'
@@ -37,14 +37,23 @@ def run_instance():
     instance_id = instance['InstanceId']
 
     print("*** Booting...")
+
     # wait..
-    waiter = client().get_waiter('instance_status_ok')
-    waiter.wait(
-        InstanceIds=[instance_id],
-        Filters=[
-            {'Name': 'instance-state-name', 'Values': ['running']},
-        ]
-    )
+    try:
+        waiter = client().get_waiter('instance_status_ok')
+        waiter.wait(
+            InstanceIds=[instance_id],
+            Filters=[
+                {'Name': 'instance-state-name', 'Values': ['running']},
+            ]
+        )
+    except Exception as ex:
+        instance = get_instance(instance_id)
+        print("*** Terminating")
+        if instance:
+            instance.terminate()
+        raise Exception from ex
+
     print("*** Booted")
 
     instance = get_instance(instance_id)
